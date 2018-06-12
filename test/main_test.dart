@@ -16,6 +16,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
           home: Scaffold(
               body: StudyDeckContent(
+        appBar: AppBar(),
         cards: [
           Card(id: 0, front: 'front1', back: 'back1'),
           Card(id: 1, front: 'front2', back: 'back2'),
@@ -27,7 +28,7 @@ void main() {
 
       await tester.tap(find.text('back1'));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(RaisedButton, 'Check'));
+      await tester.tap(find.text('Check'));
       await tester.pumpAndSettle();
 
       expect(find.widgetWithText(SnackBar, 'Correct!'), findsOneWidget);
@@ -38,6 +39,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
           home: Scaffold(
               body: StudyDeckContent(
+        appBar: AppBar(),
         cards: [
           Card(id: 0, front: 'front1', back: 'back1'),
           Card(id: 1, front: 'front2', back: 'back2'),
@@ -49,7 +51,7 @@ void main() {
 
       await tester.tap(find.text('back2'));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(RaisedButton, 'Check'));
+      await tester.tap(find.text('Check'));
       await tester.pumpAndSettle();
 
       expect(find.widgetWithText(SnackBar, 'Wrong!'), findsOneWidget);

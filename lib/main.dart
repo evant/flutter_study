@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
             builder: (context) => EditDeck(
                   title: "Edit Deck",
                   repo: repo,
-                  deck: deck,
+                  deckId: deck.id,
                 )));
   }
 
@@ -117,7 +117,7 @@ class HomePage extends StatelessWidget {
                                 builder: (context) => EditDeck(
                                       title: 'New Deck',
                                       repo: repo,
-                                      deck: deck,
+                                      deckId: deck.id,
                                     )));
                       })
                   : null);
@@ -128,19 +128,23 @@ class HomePage extends StatelessWidget {
 class EditDeck extends StatefulWidget {
   final String title;
   final DeckRepository repo;
-  final Deck deck;
+  final int deckId;
   final CardRepository cardRepo;
 
   EditDeck({
     Key key,
     @required this.title,
     @required this.repo,
-    @required this.deck,
-  })  : cardRepo = repo.cards(deck.id),
+    @required this.deckId,
+  })  : cardRepo = repo.cards(deckId),
         super(key: key);
 
   deleteDeck() {
-    repo.deleteDeck(deck.id);
+    repo.deleteDeck(deckId);
+  }
+
+  resetDeck() {
+    repo.resetDeck(deckId);
   }
 
   @override
@@ -151,31 +155,46 @@ class _EditDeckState extends State<EditDeck> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
-  addCards(BuildContext context) {
+  addCards(BuildContext context, Deck deck) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => AddCards(
-                  deck: widget.deck,
+                  deck: deck,
                   repo: widget.cardRepo,
                 )));
   }
 
-  editTitle(BuildContext context) {
-//    showDialog(context: _scaffoldKey.currentState.context, builder: (context) {
-//      return AlertDialog
-//        pad(Form(
-//          key: _formKey,
-//          child: TextFormField(
-//            autofocus: true,
-//            controller: TextEditingController(text: widget.deck.title),
-//            validator: notEmpty,
-//            onSaved: (text) {
-//              widget.repo.updateDeckTitle(widget.deck.id, text);
-//            },
-//          ),
-//        ));
-//    });
+  editTitle(BuildContext context, Deck deck) {
+    var context = _scaffoldKey.currentState.context;
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: pad(Form(
+              key: _formKey,
+              child: TextFormField(
+                autofocus: true,
+                controller: TextEditingController(text: deck.title),
+                validator: notEmpty,
+                onSaved: (text) {
+                  widget.repo.updateDeckTitle(deck.id, text);
+                },
+              ),
+            )),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Save"),
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+                    _formKey.currentState.save();
+                    Navigator.pop(context);
+                  }
+                },
+              )
+            ],
+          );
+        });
   }
 
   saveTitle(BuildContext context) {
@@ -187,73 +206,91 @@ class _EditDeckState extends State<EditDeck> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(widget.deck.title),
-        actions: <Widget>[
-          IconButton(
-            tooltip: "Edit Title",
-            icon: Icon(Icons.edit),
-            onPressed: () => editTitle(context),
-          ),
-          PopupMenuButton(
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  child: Text("Delete"),
-                )
-              ];
-            },
-            onSelected: (value) {
-              widget.deleteDeck();
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-      body: Column(children: <Widget>[
-        Expanded(
-            child: StreamBuilder(
-          stream: widget.cardRepo.cards,
-          builder: (context, snapshot) {
-            return LoadingContent(
-              snapshot: snapshot,
-              builder: (context, cards) {
-                return ListView.builder(
-                  itemCount: cards.length,
-                  itemBuilder: (context, index) {
-                    var card = cards[index];
-                    return ListTile(
-                      title: new Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[Text(card.front), Text(card.back)],
+    return new StreamBuilder(
+        stream: widget.repo.deck(widget.deckId),
+        builder: (context, snapshot) {
+          var deck = snapshot.data;
+          return Scaffold(
+            key: _scaffoldKey,
+            appBar: AppBar(
+              title: snapshot.hasData ? Text(deck.title) : null,
+              actions: <Widget>[
+                IconButton(
+                  tooltip: "Edit Title",
+                  icon: Icon(Icons.edit),
+                  onPressed: () => editTitle(context, deck),
+                ),
+                PopupMenuButton(
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        child: Text("Delete"),
+                        value: 0,
                       ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => EditCard(
-                                      deck: widget.deck,
-                                      card: cards[index],
-                                      repo: widget.cardRepo,
-                                    )));
-                      },
-                    );
+                      PopupMenuItem(
+                        child: Text("Reset"),
+                        value: 1,
+                      )
+                    ];
                   },
-                );
-              },
-            );
-          },
-        )),
-      ]),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        icon: Icon(Icons.add),
-        label: Text("Add Cards"),
-        onPressed: () => addCards(context),
-      ),
-    );
+                  onSelected: (value) {
+                    if (value == 0) {
+                      widget.deleteDeck();
+                      Navigator.pop(context);
+                    } else if (value == 1) {
+                      widget.resetDeck();
+                    }
+                  },
+                ),
+              ],
+            ),
+            body: Column(children: <Widget>[
+              Expanded(
+                  child: StreamBuilder(
+                stream: widget.cardRepo.cards,
+                builder: (context, snapshot) {
+                  return LoadingContent(
+                    snapshot: snapshot,
+                    builder: (context, cards) {
+                      return ListView.builder(
+                        itemCount: cards.length,
+                        itemBuilder: (context, index) {
+                          var card = cards[index];
+                          return ListTile(
+                            title: new Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(card.front),
+                                Text(card.back)
+                              ],
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => EditCard(
+                                            deck: deck,
+                                            card: cards[index],
+                                            repo: widget.cardRepo,
+                                          )));
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              )),
+            ]),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: FloatingActionButton.extended(
+              icon: Icon(Icons.add),
+              label: Text("Add Cards"),
+              onPressed: () => addCards(context, deck),
+            ),
+          );
+        });
   }
 }
 
@@ -300,7 +337,11 @@ class _AddCardsState extends State<AddCards> {
               children: <Widget>[
                 FlatButton(
                   child: Text("Next"),
-                  onPressed: addCard,
+                  onPressed: () {
+                    if (addCard()) {
+                      formKey.currentState.clear();
+                    }
+                  },
                 ),
                 FlatButton(
                     child: Text("Done"),
@@ -333,7 +374,7 @@ class EditCard extends StatefulWidget {
   }
 
   updateCard({String front, String back}) {
-    repo.updateCard(card.id, front: front, back: back);
+    repo.updateCardContents(card.id, front: front, back: back);
   }
 
   @override
@@ -394,6 +435,7 @@ class CardForm extends StatefulWidget {
 
 class CardFormState extends State<CardForm> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  FocusNode frontFocusNode;
   String cardFront;
   String cardBack;
 
@@ -401,12 +443,27 @@ class CardFormState extends State<CardForm> {
 
   save() => _formKey.currentState.save();
 
+  clear() {
+    setState(() {
+      cardFront = "";
+      cardBack = "";
+    });
+    FocusScope.of(context).requestFocus(frontFocusNode);
+  }
+
   @override
   void initState() {
     super.initState();
     var card = widget.card;
+    frontFocusNode = FocusNode();
     cardFront = card != null ? card.front : "";
     cardBack = card != null ? card.back : "";
+  }
+
+  @override
+  void dispose() {
+    frontFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -419,6 +476,7 @@ class CardFormState extends State<CardForm> {
               decoration: InputDecoration(labelText: "Front"),
               controller: TextEditingController(text: cardFront),
               autofocus: true,
+              focusNode: frontFocusNode,
               validator: notEmpty,
               onSaved: (text) {
                 cardFront = text;
@@ -441,8 +499,18 @@ class DeckShuffler {
   const DeckShuffler();
 
   List<Card> shuffled(List<Card> cards) {
-    var shuffled = List.from<Card>(cards);
+    var shuffled = List<Card>();
+    // Include new cards first, then again shuffled.
+    var newCards = cards.where((card) => card.reviewed == null);
+    shuffled
+        .addAll(newCards.map((card) => card.copy(reviewed: DateTime.now())));
+    // Include cards that need to be reviewed.
+    var cardsToReview = cards.where((card) =>
+        card.reviewed != null &&
+        card.reviewed.add(card.interval).isBefore(DateTime.now()));
+    shuffled.addAll(cardsToReview);
     shuffled.shuffle();
+    shuffled.insertAll(0, newCards);
     return shuffled;
   }
 
@@ -478,8 +546,12 @@ class StudyDeck extends StatelessWidget {
       builder: (context, snapshot) {
         var appBar = AppBar(title: Text(deck.title));
         if (snapshot.hasData) {
-          return StudyDeckContent(appBar: appBar, cards: snapshot.data);
+          return StudyDeckContent(
+              appBar: appBar, cards: snapshot.data, repo: cardRepo);
         } else {
+          if (snapshot.hasError) {
+            print(snapshot.error);
+          }
           return Scaffold(
             appBar: appBar,
             body: Center(child: CircularProgressIndicator()),
@@ -494,11 +566,13 @@ class StudyDeckContent extends StatefulWidget {
   final Widget appBar;
   final List<Card> cards;
   final DeckShuffler shuffler;
+  final CardRepository repo;
 
   const StudyDeckContent(
       {Key key,
       @required this.appBar,
       @required this.cards,
+      @required this.repo,
       this.shuffler = const DeckShuffler()})
       : super(key: key);
 
@@ -506,12 +580,20 @@ class StudyDeckContent extends StatefulWidget {
   State<StatefulWidget> createState() => _StudyDeckContentState();
 }
 
-class _StudyDeckContentState extends State<StudyDeckContent> {
+class _StudyDeckContentState extends State<StudyDeckContent>
+    with TickerProviderStateMixin {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  AnimationController controller;
+  Animation<double> progress;
+
   List<Card> shuffledCardsToStudy;
-  int currentCard = -1;
-  List<Card> choices;
-  int selectedChoice;
+  int cardIndex = -1;
   bool inReview = false;
+  Answer answer;
+
+  Card get card => cardIndex < shuffledCardsToStudy.length
+      ? shuffledCardsToStudy[cardIndex]
+      : null;
 
   @override
   void initState() {
@@ -520,102 +602,130 @@ class _StudyDeckContentState extends State<StudyDeckContent> {
     pickCard();
   }
 
+  @override
+  dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   pickCard() {
     setState(() {
-      currentCard++;
-      selectedChoice = null;
-      choices = widget.shuffler
-          .pickChoices(widget.cards, shuffledCardsToStudy[currentCard].id);
+      answer = null;
+      cardIndex++;
+      inReview = card != null ? card.reviewed == null : false;
+      controller = AnimationController(
+          duration: const Duration(milliseconds: 300), vsync: this);
+      progress = Tween(
+              begin: progress != null ? progress.value : 0.0,
+              end: cardIndex / shuffledCardsToStudy.length)
+          .animate(
+              CurvedAnimation(curve: Curves.fastOutSlowIn, parent: controller));
+      controller.forward();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    var content;
+    if (card == null) {
+      content = Center(
+          child: Text("Done!", style: Theme.of(context).textTheme.display1));
+    } else if (inReview) {
+      content = review(context);
+    } else {
+      content = question(context);
+    }
     return Scaffold(
+      key: _scaffoldKey,
       appBar: widget.appBar,
       body: Column(
         children: <Widget>[
-          progress(context),
-          Expanded(child: inReview ? review(context) : multipleChoice(context))
+          AnimatedBuilder(
+              animation: progress,
+              builder: (context, _) =>
+                  LinearProgressIndicator(value: progress.value)),
+          Expanded(child: content)
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        label: Text("Check"),
-        icon: Icon(Icons.check),
-        onPressed: null,
-      ),
+      floatingActionButton: inReview
+          ? reviewActionButton(context)
+          : questionActionButton(context),
     );
   }
 
-  Widget progress(BuildContext context) {
-    return LinearProgressIndicator(
-        value: currentCard / shuffledCardsToStudy.length);
-  }
-
-  Widget multipleChoice(BuildContext context) {
-    var radioChoices = List<Widget>();
-    for (int index = 0; index < choices.length; index++) {
-      radioChoices.add(RadioListTile(
-        value: choices[index].id,
-        groupValue: selectedChoice,
-        title: Text(choices[index].back),
-        onChanged: (value) {
-          setState(() {
-            selectedChoice = value;
-          });
-        },
-      ));
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Expanded(
-            child: Center(
-                child: pad(Text(shuffledCardsToStudy[currentCard].front,
-                    style: Theme.of(context).textTheme.display1)))),
-        Column(children: radioChoices),
-        pad(RaisedButton(
-          child: Text("Check"),
-          onPressed: selectedChoice != null
-              ? () {
-                  if (shuffledCardsToStudy
-                          .firstWhere(Card.withId(selectedChoice))
-                          .back ==
-                      shuffledCardsToStudy[currentCard].back) {
-                    Scaffold.of(context).showSnackBar(
-                        snackBar(context, "Correct!", Colors.greenAccent));
-                    next(context);
-                  } else {
-                    Scaffold.of(context).showSnackBar(
-                        snackBar(context, "Wrong!", Colors.redAccent));
-                    setState(() {
-                      inReview = true;
-                    });
-                  }
-                }
-              : null,
-        ))
-      ],
-    );
-  }
-
-  next(BuildContext context) {
-    if (currentCard < shuffledCardsToStudy.length - 1) {
-      pickCard();
-    } else {
-      Navigator.pop(context);
-    }
-  }
-
-  Widget review(BuildContext context) => Review(
-      card: widget.cards[currentCard],
-      finishReview: () {
+  Widget question(BuildContext context) {
+    return Question(
+      cards: widget.cards,
+      card: card,
+      answer: answer,
+      answerChanged: (answer) {
         setState(() {
-          inReview = false;
+          this.answer = answer;
         });
-        next(context);
+      },
+    );
+  }
+
+  FloatingActionButton reviewActionButton(BuildContext context) {
+    return FloatingActionButton.extended(
+      label: Text("Continue"),
+      icon: Icon(Icons.navigate_next),
+      onPressed: () {
+        finishReview(context);
+      },
+    );
+  }
+
+  FloatingActionButton questionActionButton(BuildContext context) {
+    if (answer == null) {
+      return null;
+    }
+    return FloatingActionButton.extended(
+      label: Text("Check"),
+      icon: Icon(Icons.check),
+      onPressed: () {
+        check(context, answer.text);
+      },
+    );
+  }
+
+  check(BuildContext context, String answer) {
+    if (answer == card.back) {
+      _scaffoldKey.currentState
+          .showSnackBar(snackBar(context, "Correct!", Colors.greenAccent));
+      next(context, correct: true);
+    } else {
+      _scaffoldKey.currentState
+          .showSnackBar(snackBar(context, "Wrong!", Colors.redAccent));
+      setState(() {
+        inReview = true;
       });
+    }
+  }
+
+  next(BuildContext context, {@required bool correct}) {
+    widget.repo.updateCardStats(card.id,
+        reviewed: DateTime.now(),
+        interval: correct ? nextInterval(card.interval) : INTERVALS.first);
+    pickCard();
+    if (cardIndex >= shuffledCardsToStudy.length) {
+      progress.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          Navigator.pop(context);
+        }
+      });
+    }
+  }
+
+  finishReview(BuildContext context) {
+    setState(() {
+      inReview = false;
+    });
+    next(context, correct: false);
+  }
+
+  Widget review(BuildContext context) => Review(card: card);
 
   SnackBar snackBar(BuildContext context, String text, Color color) {
     return SnackBar(
@@ -627,12 +737,100 @@ class _StudyDeckContentState extends State<StudyDeckContent> {
   }
 }
 
+class Question extends StatelessWidget {
+  final List<Card> cards;
+  final Card card;
+  final Answer answer;
+  final AnswerChanged answerChanged;
+
+  const Question({
+    Key key,
+    @required this.cards,
+    @required this.card,
+    @required this.answerChanged,
+    this.answer,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Expanded(
+            child: Center(
+                child: pad(Text(card.front,
+                    style: Theme.of(context).textTheme.display1)))),
+        Expanded(
+            child: MultipleChoice(
+                cards: cards,
+                card: card,
+                answer: answer,
+                answerChanged: answerChanged)),
+      ],
+    );
+  }
+}
+
+typedef AnswerChanged(Answer answer);
+
+class Answer {
+  final String text;
+  final dynamic value;
+
+  Answer({@required this.text, this.value});
+}
+
+class MultipleChoice extends StatefulWidget {
+  final List<Card> cards;
+  final Card card;
+  final Answer answer;
+  final AnswerChanged answerChanged;
+  final DeckShuffler shuffler;
+
+  MultipleChoice({
+    Key key,
+    @required this.cards,
+    @required this.card,
+    @required this.answerChanged,
+    this.answer,
+    shuffler,
+  })  : this.shuffler = shuffler ?? DeckShuffler(),
+        super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _MultipleChoice();
+}
+
+class _MultipleChoice extends State<MultipleChoice> {
+  List<Card> choices = List();
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.answer == null) {
+      choices = widget.shuffler.pickChoices(widget.cards, widget.card.id);
+    }
+    var radioChoices = List<Widget>();
+    for (int index = 0; index < choices.length; index++) {
+      radioChoices.add(RadioListTile(
+        value: choices[index].id,
+        groupValue: widget.answer != null ? widget.answer.value : null,
+        title: Text(choices[index].back),
+        onChanged: (value) {
+          widget.answerChanged(Answer(
+              value: value, text: choices.firstWhere(Card.withId(value)).back));
+        },
+      ));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: radioChoices,
+    );
+  }
+}
+
 class Review extends StatelessWidget {
   final Card card;
-  final Function finishReview;
 
-  const Review({Key key, @required this.card, @required this.finishReview})
-      : super(key: key);
+  const Review({Key key, @required this.card}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -644,10 +842,6 @@ class Review extends StatelessWidget {
         card.back,
         style: Theme.of(context).textTheme.display1,
       ))),
-      pad(RaisedButton(
-        child: Text("Continue"),
-        onPressed: finishReview,
-      ))
     ]);
   }
 }
