@@ -318,8 +318,7 @@ class _AddCardsState extends State<AddCards> {
   bool addCard() {
     var state = formKey.currentState;
     if (state.validate()) {
-      state.save();
-      widget.insertCard(front: state.cardFront, back: state.cardBack);
+      widget.insertCard(front: state.cardFront.text, back: state.cardBack.text);
       return true;
     }
     return false;
@@ -412,9 +411,8 @@ class _EditCardState extends State<EditCard> {
                     onPressed: () {
                       var state = formKey.currentState;
                       if (state.validate()) {
-                        state.save();
                         widget.updateCard(
-                            front: state.cardFront, back: state.cardBack);
+                            front: state.cardFront.text, back: state.cardBack.text);
                         Navigator.pop(context);
                       }
                     }),
@@ -436,18 +434,14 @@ class CardForm extends StatefulWidget {
 class CardFormState extends State<CardForm> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   FocusNode frontFocusNode;
-  String cardFront;
-  String cardBack;
+  TextEditingController cardFront;
+  TextEditingController cardBack;
 
   bool validate() => _formKey.currentState.validate();
 
-  save() => _formKey.currentState.save();
-
   clear() {
-    setState(() {
-      cardFront = "";
-      cardBack = "";
-    });
+    cardFront.clear();
+    cardBack.clear();
     FocusScope.of(context).requestFocus(frontFocusNode);
   }
 
@@ -456,13 +450,17 @@ class CardFormState extends State<CardForm> {
     super.initState();
     var card = widget.card;
     frontFocusNode = FocusNode();
-    cardFront = card != null ? card.front : "";
-    cardBack = card != null ? card.back : "";
+    cardFront = TextEditingController();
+    cardBack = TextEditingController();
+    cardFront.text = card != null ? card.front : "";
+    cardBack.text = card != null ? card.back : "";
   }
 
   @override
   void dispose() {
     frontFocusNode.dispose();
+    cardFront.dispose();
+    cardBack.dispose();
     super.dispose();
   }
 
@@ -474,21 +472,15 @@ class CardFormState extends State<CardForm> {
           children: <Widget>[
             TextFormField(
               decoration: InputDecoration(labelText: "Front"),
-              controller: TextEditingController(text: cardFront),
+              controller: cardFront,
               autofocus: true,
               focusNode: frontFocusNode,
               validator: notEmpty,
-              onSaved: (text) {
-                cardFront = text;
-              },
             ),
             TextFormField(
+              controller: cardBack,
               decoration: InputDecoration(labelText: "Back"),
-              controller: TextEditingController(text: cardBack),
               validator: notEmpty,
-              onSaved: (text) {
-                cardBack = text;
-              },
             ),
           ],
         )));
