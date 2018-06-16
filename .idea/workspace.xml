@@ -6,7 +6,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6d31e9c-3264-4e4b-aff5-81128053397f" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/models.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/repo.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/repo.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -24,53 +27,62 @@
       <file leaf-file-name="main.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="359">
-              <caret line="458" column="10" selection-start-line="458" selection-start-column="10" selection-end-line="458" selection-end-column="10" />
+            <state relative-caret-position="412">
+              <caret line="520" column="8" selection-start-line="520" selection-start-column="8" selection-end-line="520" selection-end-column="8" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="change_notifier.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/foundation/change_notifier.dart">
+      <file leaf-file-name="iterable.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/flutter/bin/cache/pkg/sky_engine/lib/core/iterable.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="359">
-              <caret line="132" column="7" selection-start-line="132" selection-start-column="7" selection-end-line="132" selection-end-column="7" />
+            <state relative-caret-position="600">
+              <caret line="400" column="10" selection-start-line="400" selection-start-column="10" selection-end-line="400" selection-end-column="10" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="box.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/rendering/box.dart">
+      <file leaf-file-name="single_child_scroll_view.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/single_child_scroll_view.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="1837" column="10" selection-start-line="1837" selection-start-column="10" selection-end-line="1837" selection-end-column="10" />
+            <state relative-caret-position="-216">
+              <caret line="185" column="2" selection-start-line="185" selection-start-column="2" selection-end-line="185" selection-end-column="2" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="editable_text.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/editable_text.dart">
+      <file leaf-file-name="scroll_view.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/scroll_view.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="303">
-              <caret line="70" column="13" selection-start-line="70" selection-start-column="13" selection-end-line="70" selection-end-column="13" />
+            <state relative-caret-position="561">
+              <caret line="50" column="2" selection-start-line="50" selection-start-column="2" selection-end-line="50" selection-end-column="2" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="text_form_field.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/material/text_form_field.dart">
+      <file leaf-file-name="db.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/db.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-104">
+              <caret line="34" column="4" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="models.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/models.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="799">
-              <caret line="54" column="4" selection-start-line="54" selection-start-column="4" selection-end-line="54" selection-end-column="4" />
+              <caret line="60" column="21" selection-start-line="60" selection-start-column="21" selection-end-line="60" selection-end-column="21" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="focus_manager.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/focus_manager.dart">
+      <file leaf-file-name="string.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/flutter/bin/cache/pkg/sky_engine/lib/core/string.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4131">
-              <caret line="247" column="11" selection-start-line="247" selection-start-column="11" selection-end-line="247" selection-end-column="11" />
+            <state relative-caret-position="345">
+              <caret line="282" column="11" selection-start-line="282" selection-start-column="11" selection-end-line="282" selection-end-column="11" />
             </state>
           </provider>
         </entry>
@@ -78,17 +90,8 @@
       <file leaf-file-name="exception.dart" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/lib/src/exception.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2057">
+            <state relative-caret-position="404">
               <caret line="124" column="6" selection-start-line="124" selection-start-column="6" selection-end-line="124" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ink_well.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/material/ink_well.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="8602">
-              <caret line="519" column="13" selection-start-line="519" selection-start-column="13" selection-end-line="519" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -96,8 +99,8 @@
       <file leaf-file-name="repo.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/repo.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="799">
-              <caret line="55" column="37" selection-start-line="55" selection-start-column="37" selection-end-line="55" selection-end-column="37" />
+            <state relative-caret-position="515">
+              <caret line="61" column="28" selection-start-line="61" selection-start-column="28" selection-end-line="61" selection-end-column="28" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -105,11 +108,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main_test.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/main_test.dart">
+      <file leaf-file-name="sqflite.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/lib/sqflite.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="17" column="20" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
+            <state relative-caret-position="644">
+              <caret line="276" column="18" selection-start-line="276" selection-start-column="18" selection-end-line="276" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -139,8 +142,9 @@
         <option value="$PROJECT_DIR$/lib/lazy.dart" />
         <option value="$PROJECT_DIR$/test/widget_test.dart" />
         <option value="$PROJECT_DIR$/test/main_test.dart" />
-        <option value="$PROJECT_DIR$/lib/models.dart" />
         <option value="$PROJECT_DIR$/lib/db.dart" />
+        <option value="$PROJECT_DIR$/android/app/build.gradle" />
+        <option value="$PROJECT_DIR$/lib/models.dart" />
         <option value="$PROJECT_DIR$/lib/repo.dart" />
         <option value="$PROJECT_DIR$/lib/main.dart" />
       </list>
@@ -148,7 +152,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="y" value="19" />
-    <option name="width" value="960" />
+    <option name="width" value="1920" />
     <option name="height" value="1181" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -157,6 +161,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="AndroidView" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -290,8 +296,6 @@
         <option name="show-excluded-files" value="false" />
       </pane>
       <pane id="PackagesPane" />
-      <pane id="Scope" />
-      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -299,7 +303,7 @@
     <property name="DEBUGGABLE_PROCESS" value="com.example.flutterstudy" />
     <property name="DEBUGGER_ID" value="Java" />
     <property name="SHOW_ALL_PROCESSES" value="true" />
-    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///home/evan/flutter-projects/flutter_study/lib/repo.dart&#10;SqliDatabase&#9;PSI&#9;JAVA://android.database.sqlite.SQLiteDatabase&#10;SqflitePlugin&#9;FILE&#9;file:///home/evan/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/android/src/main/java/com/tekartik/sqflite/SqflitePlugin.java" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///home/evan/flutter-projects/flutter_study/lib/main.dart&#10;Revi&#9;null&#9;null&#10;Card&#9;null&#9;null&#10;SqliDatabase&#9;PSI&#9;JAVA://android.database.sqlite.SQLiteDatabase&#10;SqflitePlugin&#9;FILE&#9;file:///home/evan/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/android/src/main/java/com/tekartik/sqflite/SqflitePlugin.java" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
     <property name="last.edited.regexp" value=" " />
@@ -443,14 +447,14 @@
       <window_info anchor="bottom" id="Run" order="2" weight="0.32610744" />
       <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="right" id="Flutter Outline" order="3" weight="0.32959402" />
-      <window_info active="true" anchor="bottom" id="Logcat" order="11" visible="true" weight="0.39114043" />
+      <window_info anchor="bottom" id="Logcat" order="11" weight="0.3864279" />
       <window_info id="Captures" order="2" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49717513" visible="true" weight="0.22863248" />
       <window_info id="Structure" order="1" sideWeight="0.50282484" side_tool="true" weight="0.18910256" />
       <window_info anchor="bottom" id="Debug" order="4" sideWeight="0.49946582" weight="0.26107445" />
-      <window_info anchor="right" id="Device File Explorer" order="3" sideWeight="0.5070688" side_tool="true" weight="0.104700856" />
+      <window_info anchor="right" id="Device File Explorer" order="3" sideWeight="0.5070688" side_tool="true" weight="0.31570512" />
       <window_info anchor="right" id="Theme Preview" order="3" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" id="Flutter Inspector" order="3" sideWeight="0.4929312" visible="true" weight="0.104700856" />
@@ -477,7 +481,7 @@
           <properties />
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="130" />
+      <option name="time" value="138" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -530,35 +534,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="db://[Connection]consoles/Connection" />
-    <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/services/message_codecs.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="546" column="6" selection-start-line="546" selection-start-column="6" selection-end-line="546" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/sliver.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="139" column="8" selection-start-line="139" selection-start-column="8" selection-end-line="139" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/scroll_view.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="647" column="11" selection-start-line="647" selection-start-column="11" selection-end-line="647" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/flutter/bin/cache/pkg/sky_engine/lib/core/iterable.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="198" column="14" selection-start-line="198" selection-start-column="14" selection-end-line="198" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/rendering/flex.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="753">
@@ -704,13 +679,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/models.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="28" column="11" selection-start-line="28" selection-start-column="11" selection-end-line="28" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/flutter/bin/cache/dart-sdk/lib/async/zone.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="410">
@@ -781,13 +749,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/lib/sqflite.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1302">
-          <caret line="130" column="37" selection-start-line="130" selection-start-column="37" selection-end-line="130" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/Android/Sdk/platforms/android-25/android.jar!/android/database/sqlite/SQLiteDatabase.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
@@ -802,13 +763,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/db.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="34" column="4" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/main_test.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
@@ -820,23 +774,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="8602">
           <caret line="519" column="13" selection-start-line="519" selection-start-column="13" selection-end-line="519" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/lib/src/exception.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2057">
-          <caret line="124" column="6" selection-start-line="124" selection-start-column="6" selection-end-line="124" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/repo.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="799">
-          <caret line="55" column="37" selection-start-line="55" selection-start-column="37" selection-end-line="55" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -856,29 +793,102 @@
     </entry>
     <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/editable_text.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
+        <state relative-caret-position="867">
           <caret line="70" column="13" selection-start-line="70" selection-start-column="13" selection-end-line="70" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/rendering/box.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
+        <state relative-caret-position="31229">
           <caret line="1837" column="10" selection-start-line="1837" selection-start-column="10" selection-end-line="1837" selection-end-column="10" />
         </state>
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/foundation/change_notifier.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="359">
+        <state relative-caret-position="2125">
           <caret line="132" column="7" selection-start-line="132" selection-start-column="7" selection-end-line="132" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/lib/sqflite.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="276" column="18" selection-start-line="276" selection-start-column="18" selection-end-line="276" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/flutter/bin/cache/pkg/sky_engine/lib/core/string.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="282" column="11" selection-start-line="282" selection-start-column="11" selection-end-line="282" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/scroll_view.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="561">
+          <caret line="50" column="2" selection-start-line="50" selection-start-column="2" selection-end-line="50" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/single_child_scroll_view.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-216">
+          <caret line="185" column="2" selection-start-line="185" selection-start-column="2" selection-end-line="185" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/db.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-104">
+          <caret line="34" column="4" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/lib/src/exception.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="404">
+          <caret line="124" column="6" selection-start-line="124" selection-start-column="6" selection-end-line="124" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/repo.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="515">
+          <caret line="61" column="28" selection-start-line="61" selection-start-column="28" selection-end-line="61" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/flutter/bin/cache/pkg/sky_engine/lib/core/iterable.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="400" column="10" selection-start-line="400" selection-start-column="10" selection-end-line="400" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/models.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="799">
+          <caret line="60" column="21" selection-start-line="60" selection-start-column="21" selection-end-line="60" selection-end-column="21" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="359">
-          <caret line="458" column="10" selection-start-line="458" selection-start-column="10" selection-end-line="458" selection-end-column="10" />
+        <state relative-caret-position="412">
+          <caret line="520" column="8" selection-start-line="520" selection-start-column="8" selection-end-line="520" selection-end-column="8" />
         </state>
       </provider>
     </entry>

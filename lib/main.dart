@@ -304,8 +304,8 @@ class AddCards extends StatefulWidget {
   final Deck deck;
   final CardRepository repo;
 
-  insertCard({String front, String back}) {
-    repo.insertCard(deck.id, front: front, back: back);
+  insertCard({String front, String back, String notes}) {
+    repo.insertCard(deck.id, front: front, back: back, notes: notes);
   }
 
   @override
@@ -318,7 +318,11 @@ class _AddCardsState extends State<AddCards> {
   bool addCard() {
     var state = formKey.currentState;
     if (state.validate()) {
-      widget.insertCard(front: state.cardFront.text, back: state.cardBack.text);
+      widget.insertCard(
+        front: state.cardFront.text,
+        back: state.cardBack.text,
+        notes: state.cardNotes.text,
+      );
       return true;
     }
     return false;
@@ -330,8 +334,8 @@ class _AddCardsState extends State<AddCards> {
         appBar: AppBar(title: Text(widget.deck.title)),
         body: Column(
           children: <Widget>[
-            CardForm(key: formKey),
-            Expanded(child: Container()),
+            Expanded(
+                child: SingleChildScrollView(child: CardForm(key: formKey))),
             ButtonBar(
               children: <Widget>[
                 FlatButton(
@@ -372,8 +376,8 @@ class EditCard extends StatefulWidget {
     repo.deleteCard(card.id);
   }
 
-  updateCard({String front, String back}) {
-    repo.updateCardContents(card.id, front: front, back: back);
+  updateCard({String front, String back, String notes}) {
+    repo.updateCardContents(card.id, front: front, back: back, notes: notes);
   }
 
   @override
@@ -401,9 +405,11 @@ class _EditCardState extends State<EditCard> {
           ],
         ),
         body: Column(
-          children: <Widget>[
-            CardForm(key: formKey, card: widget.card),
-            Expanded(child: Container()),
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                  child: CardForm(key: formKey, card: widget.card)),
+            ),
             ButtonBar(
               children: <Widget>[
                 FlatButton(
@@ -412,7 +418,9 @@ class _EditCardState extends State<EditCard> {
                       var state = formKey.currentState;
                       if (state.validate()) {
                         widget.updateCard(
-                            front: state.cardFront.text, back: state.cardBack.text);
+                            front: state.cardFront.text,
+                            back: state.cardBack.text,
+                            notes: state.cardNotes.text);
                         Navigator.pop(context);
                       }
                     }),
@@ -436,6 +444,7 @@ class CardFormState extends State<CardForm> {
   FocusNode frontFocusNode;
   TextEditingController cardFront;
   TextEditingController cardBack;
+  TextEditingController cardNotes;
 
   bool validate() => _formKey.currentState.validate();
 
@@ -452,8 +461,10 @@ class CardFormState extends State<CardForm> {
     frontFocusNode = FocusNode();
     cardFront = TextEditingController();
     cardBack = TextEditingController();
+    cardNotes = TextEditingController();
     cardFront.text = card != null ? card.front : "";
     cardBack.text = card != null ? card.back : "";
+    cardNotes.text = card != null ? card.notes : "";
   }
 
   @override
@@ -461,6 +472,7 @@ class CardFormState extends State<CardForm> {
     frontFocusNode.dispose();
     cardFront.dispose();
     cardBack.dispose();
+    cardNotes.dispose();
     super.dispose();
   }
 
@@ -469,7 +481,7 @@ class CardFormState extends State<CardForm> {
     return Form(
         key: _formKey,
         child: pad(Column(
-          children: <Widget>[
+          children: [
             TextFormField(
               decoration: InputDecoration(labelText: "Front"),
               controller: cardFront,
@@ -482,6 +494,10 @@ class CardFormState extends State<CardForm> {
               decoration: InputDecoration(labelText: "Back"),
               validator: notEmpty,
             ),
+            TextFormField(
+              controller: cardNotes,
+              decoration: InputDecoration(labelText: "Notes"),
+            ),
           ],
         )));
   }
@@ -492,17 +508,28 @@ class DeckShuffler {
 
   List<Card> shuffled(List<Card> cards) {
     var shuffled = List<Card>();
-    // Include new cards first, then again shuffled.
-    var newCards = cards.where((card) => card.reviewed == null);
-    shuffled
-        .addAll(newCards.map((card) => card.copy(reviewed: DateTime.now())));
-    // Include cards that need to be reviewed.
-    var cardsToReview = cards.where((card) =>
-        card.reviewed != null &&
-        card.reviewed.add(card.interval).isBefore(DateTime.now()));
+    var reviewed = cards.where((card) => card.reviewed != null);
+    // Start with cards that need to be reviewed.
+    var cardsToReview = reviewed.where(
+        (card) => card.reviewed.add(card.interval).isBefore(DateTime.now()));
     shuffled.addAll(cardsToReview);
     shuffled.shuffle();
-    shuffled.insertAll(0, newCards);
+    // Only include new cards if at least 85% of cards are on at least the third
+    // interval or we have less than 10 cards reviewed.
+    // The goal is to only dole out new cards when existing cards are
+    // sufficiently studied.
+    var reviewedCount = reviewed.length;
+    var studiedCount =
+        reviewed.where((card) => card.interval >= INTERVALS[2]).length;
+    if (reviewedCount < 10 || studiedCount / reviewedCount >= 0.85) {
+      // Include new cards twice: first just to review, then again shuffled.
+      // Limit new cards to 10
+      var newCards = cards.where((card) => card.reviewed == null).take(10);
+      var shuffledNewCards = List.of<Card>(
+          newCards.map((card) => card.copy(reviewed: DateTime.now())));
+      shuffledNewCards.shuffle();
+      shuffled.addAll(shuffledNewCards);
+    }
     return shuffled;
   }
 
@@ -580,8 +607,11 @@ class _StudyDeckContentState extends State<StudyDeckContent>
 
   List<Card> shuffledCardsToStudy;
   int cardIndex = -1;
-  bool inReview = false;
+  bool inFirstReview = false;
+  bool inReReview = false;
   Answer answer;
+
+  get inReview => inFirstReview || inReReview;
 
   Card get card => cardIndex < shuffledCardsToStudy.length
       ? shuffledCardsToStudy[cardIndex]
@@ -604,7 +634,7 @@ class _StudyDeckContentState extends State<StudyDeckContent>
     setState(() {
       answer = null;
       cardIndex++;
-      inReview = card != null ? card.reviewed == null : false;
+      inFirstReview = card != null ? card.reviewed == null : false;
       controller = AnimationController(
           duration: const Duration(milliseconds: 300), vsync: this);
       progress = Tween(
@@ -683,7 +713,8 @@ class _StudyDeckContentState extends State<StudyDeckContent>
   }
 
   check(BuildContext context, String answer) {
-    if (answer == card.back) {
+    //TODO: dart doesn't have a proper unicode solution wtf?
+    if (answer.toLowerCase() == card.back.toLowerCase()) {
       _scaffoldKey.currentState
           .showSnackBar(snackBar(context, "Correct!", Colors.greenAccent));
       next(context, correct: true);
@@ -691,15 +722,19 @@ class _StudyDeckContentState extends State<StudyDeckContent>
       _scaffoldKey.currentState
           .showSnackBar(snackBar(context, "Wrong!", Colors.redAccent));
       setState(() {
-        inReview = true;
+        inReReview = true;
       });
     }
   }
 
-  next(BuildContext context, {@required bool correct}) {
-    widget.repo.updateCardStats(card.id,
-        reviewed: DateTime.now(),
-        interval: correct ? nextInterval(card.interval) : INTERVALS.first);
+  next(BuildContext context, {bool correct}) {
+    if (correct != null) {
+      var updatedCard = correct ? card.upgrade() : card.reset();
+      widget.repo.updateCardStats(card.id,
+          reviewed: DateTime.now(),
+          difficulty: updatedCard.difficulty,
+          interval: updatedCard.interval);
+    }
     pickCard();
     if (cardIndex >= shuffledCardsToStudy.length) {
       progress.addStatusListener((status) {
@@ -711,10 +746,12 @@ class _StudyDeckContentState extends State<StudyDeckContent>
   }
 
   finishReview(BuildContext context) {
+    var correct = inReReview ? false : null;
     setState(() {
-      inReview = false;
+      inFirstReview = false;
+      inReReview = false;
     });
-    next(context, correct: false);
+    next(context, correct: correct);
   }
 
   Widget review(BuildContext context) => Review(card: card);
@@ -745,18 +782,25 @@ class Question extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var child;
+    if (card.difficulty == 0) {
+      child = MultipleChoice(
+          cards: cards,
+          card: card,
+          answer: answer,
+          answerChanged: answerChanged);
+    } else {
+      child = TextResponse(
+          card: card, answer: answer, answerChanged: answerChanged);
+    }
+
     return Column(
       children: <Widget>[
         Expanded(
             child: Center(
                 child: pad(Text(card.front,
                     style: Theme.of(context).textTheme.display1)))),
-        Expanded(
-            child: MultipleChoice(
-                cards: cards,
-                card: card,
-                answer: answer,
-                answerChanged: answerChanged)),
+        Expanded(child: child)
       ],
     );
   }
@@ -802,10 +846,11 @@ class _MultipleChoice extends State<MultipleChoice> {
     }
     var radioChoices = List<Widget>();
     for (int index = 0; index < choices.length; index++) {
+      var card = choices[index];
       radioChoices.add(RadioListTile(
-        value: choices[index].id,
+        value: card.id,
         groupValue: widget.answer != null ? widget.answer.value : null,
-        title: Text(choices[index].back),
+        title: Text(card.back + (card.hasNotes ? " (${card.notes})" : '')),
         onChanged: (value) {
           widget.answerChanged(Answer(
               value: value, text: choices.firstWhere(Card.withId(value)).back));
@@ -813,9 +858,53 @@ class _MultipleChoice extends State<MultipleChoice> {
       ));
     }
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: radioChoices,
     );
+  }
+}
+
+class TextResponse extends StatefulWidget {
+  final Card card;
+  final Answer answer;
+  final AnswerChanged answerChanged;
+
+  const TextResponse({
+    Key key,
+    @required this.card,
+    @required this.answerChanged,
+    this.answer,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _TextResponseState();
+}
+
+class _TextResponseState extends State<TextResponse> {
+  TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.answer == null) {
+      controller.clear();
+    }
+    return pad(TextField(
+        autofocus: true,
+        controller: controller,
+        onChanged: (answer) {
+          widget.answerChanged(answer.isNotEmpty ? Answer(text: answer) : null);
+        }));
   }
 }
 
@@ -827,13 +916,22 @@ class Review extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      pad(Center(child: Text(card.front))),
-      Expanded(
-          child: Center(
-              child: Text(
-        card.back,
+      pad(Center(
+          child: Text(
+        card.front,
         style: Theme.of(context).textTheme.display1,
+        textAlign: TextAlign.center,
       ))),
+      Expanded(
+          child: new Padding(
+        padding: const EdgeInsets.only(bottom: 44.0),
+        child: Center(
+            child: Text(
+          card.back + (card.hasNotes ? "\n(${card.notes})" : ''),
+          style: Theme.of(context).textTheme.display2,
+          textAlign: TextAlign.center,
+        )),
+      )),
     ]);
   }
 }

@@ -12,11 +12,22 @@ Lazy<Future<Database>> defaultDb = Lazy(() => open());
 
 Future<Database> open() async {
   var dir = await getApplicationDocumentsDirectory();
-  return await openDatabase(join(dir.path, "decks.db"), version: 1,
+  return await openDatabase(join(dir.path, "decks.db"), version: 2,
       onCreate: (db, version) async {
     await db.execute("CREATE TABLE Decks (id INTEGER PRIMARY KEY, title TEXT)");
-    await db.execute(
-        "CREATE TABLE Cards (id INTEGER PRIMARY KEY, deck INTEGER, front TEXT, back TEXT, reviewed, interval INTEGER DEFAULT 0, difficulty INTEGER DEFAULT 0, FOREIGN KEY(deck) REFERENCES Decks(id) ON DELETE CASCADE)");
+    if (version == 1) {
+      await db.execute(
+          "CREATE TABLE Cards (id INTEGER PRIMARY KEY, deck INTEGER, front TEXT, back TEXT, reviewed INTEGER, interval INTEGER DEFAULT 0, difficulty INTEGER DEFAULT 0, FOREIGN KEY(deck) REFERENCES Decks(id) ON DELETE CASCADE)");
+    } else if (version == 2) {
+      await db.execute(
+          "CREATE TABLE Cards (id INTEGER PRIMARY KEY, deck INTEGER, front TEXT, back TEXT, notes TEXT, reviewed INTEGER, interval INTEGER DEFAULT 0, difficulty INTEGER DEFAULT 0, FOREIGN KEY(deck) REFERENCES Decks(id) ON DELETE CASCADE)");
+    }
+  }, onUpgrade: (db, oldVersion, newVersion) async {
+    if (oldVersion != newVersion) {
+      if (newVersion == 2) {
+        await db.execute("ALTER TABLE Cards ADD COLUMN notes TEXT");
+      }
+    }
   });
 }
 
@@ -26,9 +37,10 @@ class DeckRepository {
 
   DeckRepository({Future<Database> db})
       : _table = LiveTable(db != null ? db : defaultDb()) {
+    var now = DateTime.now().millisecondsSinceEpoch ~/ (60 * 1000);
     decks = _table
         .query(
-            "SELECT Decks.id, Decks.title, count(Cards.deck) as cardCount FROM Decks LEFT OUTER JOIN Cards ON Cards.deck = Decks.id GROUP BY Decks.id, Decks.title")
+            "SELECT Decks.id, Decks.title, count(Cards.deck) as cardCount FROM Decks LEFT OUTER JOIN (SELECT * FROM Cards WHERE Cards.reviewed is null OR (Cards.reviewed + Cards.interval) < $now) as Cards ON Cards.deck = Decks.id GROUP BY Decks.id, Decks.title")
         .map<List<Deck>>(toDecks);
   }
 
@@ -99,27 +111,30 @@ class CardRepository {
     List<Card> cards = List();
     for (var row in rows) {
       cards.add(Card(
-          id: row["id"],
-          front: row["front"],
-          back: row["back"],
-          reviewed: toDateTime(row["reviewed"]),
-          interval: Duration(minutes: row["interval"])));
+        id: row["id"],
+        front: row["front"],
+        back: row["back"],
+        notes: row["notes"],
+        reviewed: toDateTime(row["reviewed"]),
+        interval: Duration(minutes: row["interval"]),
+        difficulty: row["difficulty"],
+      ));
     }
     return cards;
   }
 
   Future<Card> insertCard(int deckId,
-      {@required String front, @required String back}) async {
+      {@required String front, @required String back, String notes}) async {
     var id = await _table.insert(
-        "INSERT INTO Cards (deck, front, back) VALUES (?,?,?)",
-        [deckId, front, back]);
-    return Card(id: id, front: front, back: back);
+        "INSERT INTO Cards (deck, front, back, notes) VALUES (?,?,?,?)",
+        [deckId, front, back, notes]);
+    return Card(id: id, front: front, back: back, notes: notes);
   }
 
   Future<int> updateCardContents(int cardId,
-      {@required String front, @required String back}) {
-    return _table.update("UPDATE Cards SET front = ?, back = ? WHERE id = ?",
-        [front, back, cardId]);
+      {@required String front, @required String back, String notes}) {
+    return _table.update("UPDATE Cards SET front = ?, back = ?, notes = ? WHERE id = ?",
+        [front, back, notes, cardId]);
   }
 
   Future<int> updateCardStats(int cardId,

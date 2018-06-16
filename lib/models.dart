@@ -17,6 +17,7 @@ class Card {
     this.id,
     @required this.front,
     @required this.back,
+    this.notes,
     this.reviewed,
     this.interval = Duration.zero,
     this.difficulty = 0,
@@ -25,20 +26,36 @@ class Card {
   final int id;
   final String front;
   final String back;
+  final String notes;
   final DateTime reviewed;
   final Duration interval;
   final int difficulty;
 
+  bool get hasNotes => notes != null && notes.isNotEmpty;
+
   static Predicate<Card> withId(int id) => (other) => other.id == id;
 
-  Card copy({DateTime reviewed}) => Card(
+  Card copy({DateTime reviewed, int difficulty, Duration interval}) => Card(
         id: this.id,
         front: this.front,
         back: this.back,
+        notes: this.notes,
         reviewed: reviewed ?? this.reviewed,
-        interval: this.interval,
-        difficulty: this.difficulty,
+        interval: interval ?? this.interval,
+        difficulty: difficulty ?? this.difficulty,
       );
+
+  Card upgrade() {
+    if (difficulty == 0 && interval >= INTERVALS[1]) {
+      return copy(difficulty: 1, interval: INTERVALS.first);
+    } else {
+      return copy(interval: nextInterval(interval));
+    }
+  }
+
+  Card reset() {
+    return copy(difficulty: 0, interval: INTERVALS.first);
+  }
 }
 
 const List<Duration> INTERVALS = [
