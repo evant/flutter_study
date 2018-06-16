@@ -292,12 +292,20 @@ class _EditDeckState extends State<EditDeck> {
                         itemBuilder: (context, index) {
                           var card = cards[index];
                           return ListTile(
-                            title: new Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(card.front),
-                                Text(card.back)
-                              ],
+                            title: new Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                runSpacing: 8.0,
+                                children: [
+                                  Text(card.front,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis),
+                                  Text(card.back,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis),
+                                ],
+                              ),
                             ),
                             onTap: () {
                               Navigator.push(

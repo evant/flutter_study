@@ -6,15 +6,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6d31e9c-3264-4e4b-aff5-81128053397f" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/models.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/repo.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/repo.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -32,11 +25,20 @@
       <file leaf-file-name="main.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="796" column="19" selection-start-line="796" selection-start-column="19" selection-end-line="796" selection-end-column="19" />
+            <state relative-caret-position="700">
+              <caret line="314" column="33" selection-start-line="314" selection-start-column="33" selection-end-line="314" selection-end-column="33" />
               <folding>
                 <element signature="e#0#49#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="basic.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/basic.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-420">
+              <caret line="3251" column="2" selection-start-line="3251" selection-start-column="2" selection-end-line="3251" selection-end-column="2" />
             </state>
           </provider>
         </entry>
@@ -95,15 +97,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="database.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/lib/src/database.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
-              <caret line="297" column="13" selection-start-line="297" selection-start-column="13" selection-end-line="297" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="repo.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/repo.dart">
           <provider selected="true" editor-type-id="text-editor">
@@ -120,7 +113,7 @@
         <entry file="file://$PROJECT_DIR$/pubspec.yaml">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="170">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+              <caret line="10" selection-start-line="10" selection-end-line="10" />
             </state>
           </provider>
         </entry>
@@ -531,13 +524,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/material/radio_list_tile.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1190">
-          <caret line="76" column="6" selection-start-line="76" selection-start-column="6" selection-end-line="76" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/services/system_sound.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
@@ -861,7 +847,7 @@
     <entry file="file://$PROJECT_DIR$/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
@@ -882,10 +868,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/flutter/packages/flutter/lib/src/widgets/basic.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-420">
+          <caret line="3251" column="2" selection-start-line="3251" selection-start-column="2" selection-end-line="3251" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="796" column="19" selection-start-line="796" selection-start-column="19" selection-end-line="796" selection-end-column="19" />
+        <state relative-caret-position="700">
+          <caret line="314" column="33" selection-start-line="314" selection-start-column="33" selection-end-line="314" selection-end-column="33" />
           <folding>
             <element signature="e#0#49#0" expanded="true" />
           </folding>
