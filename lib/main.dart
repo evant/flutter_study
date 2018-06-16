@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_study/models.dart';
 import 'package:flutter_study/repo.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() => runApp(App());
 
@@ -9,13 +10,37 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Flutter Study',
-        theme: ThemeData(
-          accentColor: Colors.blueAccent,
-          brightness: Brightness.dark,
-        ),
-        home: HomePage(repo: repo));
+    return Tts(
+        child: MaterialApp(
+            title: 'Flutter Study',
+            theme: ThemeData(
+              accentColor: Colors.blueAccent,
+              brightness: Brightness.dark,
+            ),
+            home: HomePage(repo: repo)));
+  }
+}
+
+class Tts extends InheritedWidget {
+  final FlutterTts tts = FlutterTts();
+
+  get languages => tts.getLanguages;
+
+  Tts({Widget child}) : super(child: child);
+
+  static Tts of(BuildContext context) =>
+      context.inheritFromWidgetOfExactType(Tts);
+
+  @override
+  bool updateShouldNotify(InheritedWidget oldWidget) {
+    return false;
+  }
+
+  speak(String text, {String language}) async {
+    if (language != null) {
+      await tts.setLanguage(language);
+    }
+    await tts.speak(text);
   }
 }
 
@@ -178,7 +203,7 @@ class _EditDeckState extends State<EditDeck> {
                 controller: TextEditingController(text: deck.title),
                 validator: notEmpty,
                 onSaved: (text) {
-                  widget.repo.updateDeckTitle(deck.id, text);
+                  widget.repo.updateDeck(deck.id, title: text);
                 },
               ),
             )),
@@ -224,6 +249,10 @@ class _EditDeckState extends State<EditDeck> {
                   itemBuilder: (context) {
                     return [
                       PopupMenuItem(
+                        child: Text("Settings"),
+                        value: 2,
+                      ),
+                      PopupMenuItem(
                         child: Text("Delete"),
                         value: 0,
                       ),
@@ -239,6 +268,12 @@ class _EditDeckState extends State<EditDeck> {
                       Navigator.pop(context);
                     } else if (value == 1) {
                       widget.resetDeck();
+                    } else if (value == 2) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DeckSettings(
+                                  deckId: deck.id, repo: widget.repo)));
                     }
                   },
                 ),
@@ -294,6 +329,81 @@ class _EditDeckState extends State<EditDeck> {
   }
 }
 
+class DeckSettings extends StatelessWidget {
+  final int deckId;
+  final DeckRepository repo;
+
+  const DeckSettings({Key key, @required this.deckId, @required this.repo})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: Text("Deck Settings")),
+        body: StreamBuilder(
+          stream: repo.deck(deckId),
+          builder: (context, snapshot) {
+            return LoadingContent(
+              snapshot: snapshot,
+              builder: (context, deck) => FutureBuilder(
+                    future: Tts.of(context).languages,
+                    builder: (context, snapshot) {
+                      return LoadingContent(
+                          snapshot: snapshot,
+                          builder: (context, languages) {
+                            List<DropdownMenuItem> items = List();
+                            items.add(DropdownMenuItem(child: Text("Default")));
+                            for (var language in languages) {
+                              items.add(DropdownMenuItem(
+                                  child: Text(language), value: language));
+                            }
+                            return pad(Column(children: [
+                              Text("Text To Speach",
+                                  style: Theme.of(context).textTheme.headline),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text("Card Fronts"),
+                                    DropdownButton(
+                                      items: items,
+                                      value: deck.cardFrontLanguage,
+                                      onChanged: (value) {
+                                        if (deck.cardBackLanguage == null) {
+                                          repo.updateDeck(deckId,
+                                              cardFrontLanguage: value,
+                                              cardBackLanguage: value);
+                                        } else {
+                                          repo.updateDeck(deckId,
+                                              cardFrontLanguage: value);
+                                        }
+                                      },
+                                    ),
+                                  ]),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text("Card Backs"),
+                                    DropdownButton(
+                                      items: items,
+                                      value: deck.cardBackLanguage,
+                                      onChanged: (value) {
+                                        repo.updateDeck(deckId,
+                                            cardBackLanguage: value);
+                                      },
+                                    ),
+                                  ]),
+                            ]));
+                          });
+                    },
+                  ),
+            );
+          },
+        ));
+  }
+}
+
 class AddCards extends StatefulWidget {
   AddCards({
     Key key,
@@ -333,11 +443,11 @@ class _AddCardsState extends State<AddCards> {
     return Scaffold(
         appBar: AppBar(title: Text(widget.deck.title)),
         body: Column(
-          children: <Widget>[
+          children: [
             Expanded(
                 child: SingleChildScrollView(child: CardForm(key: formKey))),
             ButtonBar(
-              children: <Widget>[
+              children: [
                 FlatButton(
                   child: Text("Next"),
                   onPressed: () {
@@ -567,7 +677,11 @@ class StudyDeck extends StatelessWidget {
         var appBar = AppBar(title: Text(deck.title));
         if (snapshot.hasData) {
           return StudyDeckContent(
-              appBar: appBar, cards: snapshot.data, repo: cardRepo);
+            appBar: appBar,
+            deck: deck,
+            cards: snapshot.data,
+            repo: cardRepo,
+          );
         } else {
           if (snapshot.hasError) {
             print(snapshot.error);
@@ -584,6 +698,7 @@ class StudyDeck extends StatelessWidget {
 
 class StudyDeckContent extends StatefulWidget {
   final Widget appBar;
+  final Deck deck;
   final List<Card> cards;
   final DeckShuffler shuffler;
   final CardRepository repo;
@@ -591,6 +706,7 @@ class StudyDeckContent extends StatefulWidget {
   const StudyDeckContent(
       {Key key,
       @required this.appBar,
+      @required this.deck,
       @required this.cards,
       @required this.repo,
       this.shuffler = const DeckShuffler()})
@@ -679,6 +795,7 @@ class _StudyDeckContentState extends State<StudyDeckContent>
 
   Widget question(BuildContext context) {
     return Question(
+      deck: widget.deck,
       cards: widget.cards,
       card: card,
       answer: answer,
@@ -755,7 +872,7 @@ class _StudyDeckContentState extends State<StudyDeckContent>
     next(context, correct: correct);
   }
 
-  Widget review(BuildContext context) => Review(card: card);
+  Widget review(BuildContext context) => Review(deck: widget.deck, card: card);
 
   SnackBar snackBar(BuildContext context, String text, Color color) {
     return SnackBar(
@@ -768,6 +885,7 @@ class _StudyDeckContentState extends State<StudyDeckContent>
 }
 
 class Question extends StatelessWidget {
+  final Deck deck;
   final List<Card> cards;
   final Card card;
   final Answer answer;
@@ -775,6 +893,7 @@ class Question extends StatelessWidget {
 
   const Question({
     Key key,
+    @required this.deck,
     @required this.cards,
     @required this.card,
     @required this.answerChanged,
@@ -799,8 +918,11 @@ class Question extends StatelessWidget {
       children: <Widget>[
         Expanded(
             child: Center(
-                child: pad(Text(card.front,
-                    style: Theme.of(context).textTheme.display1)))),
+                child: pad(ReadOnTap(
+                    read: card.front,
+                    language: deck.cardFrontLanguage,
+                    child: Text(card.front,
+                        style: Theme.of(context).textTheme.display1))))),
         Expanded(child: child)
       ],
     );
@@ -910,30 +1032,57 @@ class _TextResponseState extends State<TextResponse> {
 }
 
 class Review extends StatelessWidget {
+  final Deck deck;
   final Card card;
 
-  const Review({Key key, @required this.card}) : super(key: key);
+  Review({Key key, @required this.deck, @required this.card}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       pad(Center(
-          child: Text(
-        card.front,
-        style: Theme.of(context).textTheme.display1,
-        textAlign: TextAlign.center,
+          child: ReadOnTap(
+        read: card.front,
+        language: deck.cardFrontLanguage,
+        child: Text(
+          card.front,
+          style: Theme.of(context).textTheme.display1,
+          textAlign: TextAlign.center,
+        ),
       ))),
       Expanded(
           child: new Padding(
         padding: const EdgeInsets.only(bottom: 44.0),
         child: Center(
-            child: Text(
-          card.back + (card.hasNotes ? "\n(${card.notes})" : ''),
-          style: Theme.of(context).textTheme.display2,
-          textAlign: TextAlign.center,
+            child: ReadOnTap(
+          read: card.back,
+          language: deck.cardBackLanguage,
+          child: Text(
+            card.back + (card.hasNotes ? "\n(${card.notes})" : ''),
+            style: Theme.of(context).textTheme.display2,
+            textAlign: TextAlign.center,
+          ),
         )),
       )),
     ]);
+  }
+}
+
+class ReadOnTap extends StatelessWidget {
+  final String read;
+  final String language;
+  final Widget child;
+
+  const ReadOnTap({Key key, this.read, this.language, @required this.child})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        child: child,
+        onTap: () {
+          Tts.of(context).speak(read, language: language);
+        });
   }
 }
 

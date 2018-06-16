@@ -10,22 +10,34 @@ import 'package:sqflite/sqflite.dart';
 
 Lazy<Future<Database>> defaultDb = Lazy(() => open());
 
+const String NOT_GIVEN = "<NOT_GIVEN>";
+
 Future<Database> open() async {
   var dir = await getApplicationDocumentsDirectory();
-  return await openDatabase(join(dir.path, "decks.db"), version: 2,
+  return await openDatabase(join(dir.path, "decks.db"), version: 3,
       onCreate: (db, version) async {
-    await db.execute("CREATE TABLE Decks (id INTEGER PRIMARY KEY, title TEXT)");
-    if (version == 1) {
+    if (version < 3) {
+      await db
+          .execute("CREATE TABLE Decks (id INTEGER PRIMARY KEY, title TEXT)");
+    } else {
+      await db.execute(
+          "CREATE TABLE Decks (id INTEGER PRIMARY KEY, title TEXT, cardFrontLanguage TEXT, cardBackLanguage TEXT)");
+    }
+    if (version < 2) {
       await db.execute(
           "CREATE TABLE Cards (id INTEGER PRIMARY KEY, deck INTEGER, front TEXT, back TEXT, reviewed INTEGER, interval INTEGER DEFAULT 0, difficulty INTEGER DEFAULT 0, FOREIGN KEY(deck) REFERENCES Decks(id) ON DELETE CASCADE)");
-    } else if (version == 2) {
+    } else {
       await db.execute(
           "CREATE TABLE Cards (id INTEGER PRIMARY KEY, deck INTEGER, front TEXT, back TEXT, notes TEXT, reviewed INTEGER, interval INTEGER DEFAULT 0, difficulty INTEGER DEFAULT 0, FOREIGN KEY(deck) REFERENCES Decks(id) ON DELETE CASCADE)");
     }
   }, onUpgrade: (db, oldVersion, newVersion) async {
     if (oldVersion != newVersion) {
-      if (newVersion == 2) {
+      if (oldVersion < 2 && newVersion >= 2) {
         await db.execute("ALTER TABLE Cards ADD COLUMN notes TEXT");
+      }
+      if (oldVersion < 3 && newVersion >= 3) {
+        await db.execute("ALTER TABLE Decks ADD COLUMN cardFrontLanguage TEXT");
+        await db.execute("ALTER TABLE Decks ADD COLUMN cardBackLanguage TEXT");
       }
     }
   });
@@ -40,7 +52,7 @@ class DeckRepository {
     var now = DateTime.now().millisecondsSinceEpoch ~/ (60 * 1000);
     decks = _table
         .query(
-            "SELECT Decks.id, Decks.title, count(Cards.deck) as cardCount FROM Decks LEFT OUTER JOIN (SELECT * FROM Cards WHERE Cards.reviewed is null OR (Cards.reviewed + Cards.interval) < $now) as Cards ON Cards.deck = Decks.id GROUP BY Decks.id, Decks.title")
+            "SELECT Decks.id, Decks.title, Decks.cardFrontLanguage, Decks.CardBackLanguage, count(Cards.deck) as cardCount FROM Decks LEFT OUTER JOIN (SELECT * FROM Cards WHERE Cards.reviewed is null OR (Cards.reviewed + Cards.interval) < $now) as Cards ON Cards.deck = Decks.id GROUP BY Decks.id, Decks.title")
         .map<List<Deck>>(toDecks);
   }
 
@@ -48,7 +60,12 @@ class DeckRepository {
     var decks = List<Deck>();
     for (var row in rows) {
       decks.add(Deck(
-          id: row["id"], title: row["title"], cardCount: row["cardCount"]));
+        id: row["id"],
+        title: row["title"],
+        cardCount: row["cardCount"],
+        cardFrontLanguage: row["cardFrontLanguage"],
+        cardBackLanguage: row["cardBackLanguage"],
+      ));
     }
     return decks;
   }
@@ -68,9 +85,25 @@ class DeckRepository {
     return Deck(id: id, title: title);
   }
 
-  Future<int> updateDeckTitle(int deckId, String newTitle) {
-    return _table
-        .update("UPDATE Decks SET title = ? WHERE id = ?", [newTitle, deckId]);
+  Future<int> updateDeck(int deckId,
+      {String title = NOT_GIVEN, String cardFrontLanguage = NOT_GIVEN, String cardBackLanguage = NOT_GIVEN}) {
+    var fields = List<String>();
+    var args = List();
+    if (title != NOT_GIVEN) {
+      fields.add("title = ?");
+      args.add(title);
+    }
+    if (cardFrontLanguage != NOT_GIVEN) {
+      fields.add("cardFrontLanguage = ?");
+      args.add(cardFrontLanguage);
+    }
+    if (cardBackLanguage != NOT_GIVEN) {
+      fields.add("cardBackLanguage = ?");
+      args.add(cardBackLanguage);
+    }
+    args.add(deckId);
+    return _table.update(
+        "UPDATE Decks SET ${fields.join(", ")} WHERE id = ?", args);
   }
 
   Future<int> deleteDeck(int deckId) {
@@ -133,7 +166,8 @@ class CardRepository {
 
   Future<int> updateCardContents(int cardId,
       {@required String front, @required String back, String notes}) {
-    return _table.update("UPDATE Cards SET front = ?, back = ?, notes = ? WHERE id = ?",
+    return _table.update(
+        "UPDATE Cards SET front = ?, back = ?, notes = ? WHERE id = ?",
         [front, back, notes, cardId]);
   }
 
