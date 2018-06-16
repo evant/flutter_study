@@ -451,6 +451,7 @@ class CardFormState extends State<CardForm> {
   clear() {
     cardFront.clear();
     cardBack.clear();
+    cardNotes.clear();
     FocusScope.of(context).requestFocus(frontFocusNode);
   }
 
