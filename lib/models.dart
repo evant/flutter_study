@@ -3,11 +3,11 @@ import 'package:meta/meta.dart';
 typedef bool Predicate<E>(E element);
 
 class Deck {
-  Deck({this.id, @required this.title, this.cardCount = 0, this.cardFrontLanguage, this.cardBackLanguage});
+  Deck({this.id, @required this.title, this.reviewCount = 0, this.cardFrontLanguage, this.cardBackLanguage});
 
   final int id;
   final String title;
-  final int cardCount;
+  final int reviewCount;
   final String cardFrontLanguage;
   final String cardBackLanguage;
 

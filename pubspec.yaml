@@ -7,7 +7,10 @@ dependencies:
 
   path_provider: ^0.4.1
   sqflite: ^0.8.9
+  sqlflight:
+    path: ../sqlflight
   flutter_tts: ^0.0.6
+  rxdart: ^0.17.0
 
 dev_dependencies:
   flutter_test:

@@ -1,12 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter_study/models.dart';
 import 'package:flutter_study/repo.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:rxdart/rxdart.dart';
 
 void main() => runApp(App());
 
+class Foo {
+  final String bar;
+
+  const Foo([this.bar = "const"]);
+}
+
+String nonConst() => "nonConst";
+
 class App extends StatelessWidget {
-  final DeckRepository repo = DeckRepository();
+  final Future<DeckRepository> repo =
+      defaultDb().then((db) => DeckRepository(db));
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +29,7 @@ class App extends StatelessWidget {
               accentColor: Colors.blueAccent,
               brightness: Brightness.dark,
             ),
-            home: HomePage(repo: repo)));
+            home: HomePage()));
   }
 }
 
@@ -70,15 +82,11 @@ class LoadingContent<T> extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  final DeckRepository repo;
-
-  const HomePage({Key key, this.repo}) : super(key: key);
+  const HomePage({Key key}) : super(key: key);
 
   studyDeck(BuildContext context, Deck deck) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => StudyDeck(deck: deck, repo: repo)));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => StudyDeck(deck: deck)));
   }
 
   editDeck(BuildContext context, Deck deck) {
@@ -87,7 +95,6 @@ class HomePage extends StatelessWidget {
         MaterialPageRoute(
             builder: (context) => EditDeck(
                   title: "Edit Deck",
-                  repo: repo,
                   deckId: deck.id,
                 )));
   }
@@ -95,32 +102,42 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: repo.decks,
+        stream: flatMapStream(deckRepo(), (repo) => repo.decks),
         builder: (context, snapshot) {
           return Scaffold(
               appBar: AppBar(title: Text('Flutter Study')),
               body: LoadingContent(
                   snapshot: snapshot,
                   builder: (context, decks) {
-                    return Column(children: <Widget>[
+                    return Column(children: [
                       Expanded(
                           child: ListView.builder(
                         itemCount: decks.length,
                         itemBuilder: (context, index) {
+                          var contents = <Widget>[Text(decks[index].title)];
+                          if (decks[index].reviewCount > 0) {
+                            contents.add(Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    color: Theme.of(context).accentColor),
+                                child: new Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 4.0, horizontal: 8.0),
+                                  child: Text("review",
+                                      style: Theme
+                                          .of(context)
+                                          .accentTextTheme
+                                          .body1),
+                                )));
+                          }
                           return ListTile(
-                            title: new Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(decks[index].title),
-                                Text(decks[index].cardCount.toString()),
-                              ],
+                            title: Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: contents,
                             ),
                             onTap: () {
-                              if (decks[index].cardCount > 0) {
-                                studyDeck(context, decks[index]);
-                              } else {
-                                editDeck(context, decks[index]);
-                              }
+                              studyDeck(context, decks[index]);
                             },
                             onLongPress: () {
                               editDeck(context, decks[index]);
@@ -134,14 +151,13 @@ class HomePage extends StatelessWidget {
                   ? FloatingActionButton(
                       child: Icon(Icons.add),
                       onPressed: () async {
-                        var deck = await repo.insertDeck(
+                        var deck = await (await deckRepo()).insertDeck(
                             title: "Deck ${snapshot.data.length + 1}");
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => EditDeck(
                                       title: 'New Deck',
-                                      repo: repo,
                                       deckId: deck.id,
                                     )));
                       })
@@ -152,24 +168,22 @@ class HomePage extends StatelessWidget {
 
 class EditDeck extends StatefulWidget {
   final String title;
-  final DeckRepository repo;
   final int deckId;
-  final CardRepository cardRepo;
+  final Future<CardRepository> cardRepo;
 
   EditDeck({
     Key key,
     @required this.title,
-    @required this.repo,
     @required this.deckId,
-  })  : cardRepo = repo.cards(deckId),
+  })  : cardRepo = deckRepo().then((repo) => repo.cards(deckId)),
         super(key: key);
 
-  deleteDeck() {
-    repo.deleteDeck(deckId);
+  deleteDeck() async {
+    await (await deckRepo()).deleteDeck(deckId);
   }
 
-  resetDeck() {
-    repo.resetDeck(deckId);
+  resetDeck() async {
+    await (await deckRepo()).resetDeck(deckId);
   }
 
   @override
@@ -202,8 +216,8 @@ class _EditDeckState extends State<EditDeck> {
                 autofocus: true,
                 controller: TextEditingController(text: deck.title),
                 validator: notEmpty,
-                onSaved: (text) {
-                  widget.repo.updateDeck(deck.id, title: text);
+                onSaved: (text) async {
+                  await (await deckRepo()).updateDeck(deck.id, title: text);
                 },
               ),
             )),
@@ -229,16 +243,29 @@ class _EditDeckState extends State<EditDeck> {
     }
   }
 
+  Stream<DeckData> _deckData() {
+    return flatMapStream<CardRepository, DeckData>(widget.cardRepo, (repo) {
+      Stream<Deck> deckStream = repo.deckRepo.deck(widget.deckId);
+      Stream<List<Card>> cardsStream = repo.cards;
+      return Observable(deckStream).switchMap<DeckData>((deck) =>
+          cardsStream.map((cards) => DeckData(deck: deck, cards: cards)));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new StreamBuilder(
-        stream: widget.repo.deck(widget.deckId),
+    return StreamBuilder(
+        stream: _deckData(),
         builder: (context, snapshot) {
-          var deck = snapshot.data;
+          var data = snapshot.data;
+          var deck = data != null ? data.deck : null;
+          var cards = data != null ? data.cards : null;
           return Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-              title: snapshot.hasData ? Text(deck.title) : null,
+              title: snapshot.hasData
+                  ? Text("${deck.title} (${cards.length})")
+                  : null,
               actions: <Widget>[
                 IconButton(
                   tooltip: "Edit Title",
@@ -272,8 +299,8 @@ class _EditDeckState extends State<EditDeck> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => DeckSettings(
-                                  deckId: deck.id, repo: widget.repo)));
+                              builder: (context) =>
+                                  DeckSettings(deckId: deck.id)));
                     }
                   },
                 ),
@@ -281,43 +308,36 @@ class _EditDeckState extends State<EditDeck> {
             ),
             body: Column(children: <Widget>[
               Expanded(
-                  child: StreamBuilder(
-                stream: widget.cardRepo.cards,
-                builder: (context, snapshot) {
-                  return LoadingContent(
-                    snapshot: snapshot,
-                    builder: (context, cards) {
-                      return ListView.builder(
-                        itemCount: cards.length,
-                        itemBuilder: (context, index) {
-                          var card = cards[index];
-                          return ListTile(
-                            title: new Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Wrap(
-                                alignment: WrapAlignment.spaceBetween,
-                                runSpacing: 8.0,
-                                children: [
-                                  Text(card.front,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis),
-                                  Text(card.back,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis),
-                                ],
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => EditCard(
-                                            deck: deck,
-                                            card: cards[index],
-                                            repo: widget.cardRepo,
-                                          )));
-                            },
-                          );
+                  child: LoadingContent(
+                snapshot: snapshot,
+                builder: (context, _) {
+                  return ListView.builder(
+                    itemCount: cards.length,
+                    itemBuilder: (context, index) {
+                      var card = cards[index];
+                      return ListTile(
+                        title: new Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            runSpacing: 8.0,
+                            children: [
+                              Text(card.front,
+                                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                              Text(card.back,
+                                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                            ],
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => EditCard(
+                                        deck: deck,
+                                        card: cards[index],
+                                        repo: widget.cardRepo,
+                                      )));
                         },
                       );
                     },
@@ -337,19 +357,24 @@ class _EditDeckState extends State<EditDeck> {
   }
 }
 
+class DeckData {
+  final Deck deck;
+  final List<Card> cards;
+
+  DeckData({@required this.deck, @required this.cards});
+}
+
 class DeckSettings extends StatelessWidget {
   final int deckId;
-  final DeckRepository repo;
 
-  const DeckSettings({Key key, @required this.deckId, @required this.repo})
-      : super(key: key);
+  const DeckSettings({Key key, @required this.deckId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text("Deck Settings")),
         body: StreamBuilder(
-          stream: repo.deck(deckId),
+          stream: flatMapStream(deckRepo(), (repo) => repo.deck(deckId)),
           builder: (context, snapshot) {
             return LoadingContent(
               snapshot: snapshot,
@@ -376,13 +401,15 @@ class DeckSettings extends StatelessWidget {
                                     DropdownButton(
                                       items: items,
                                       value: deck.cardFrontLanguage,
-                                      onChanged: (value) {
+                                      onChanged: (value) async {
                                         if (deck.cardBackLanguage == null) {
-                                          repo.updateDeck(deckId,
+                                          await (await deckRepo()).updateDeck(
+                                              deckId,
                                               cardFrontLanguage: value,
                                               cardBackLanguage: value);
                                         } else {
-                                          repo.updateDeck(deckId,
+                                          await (await deckRepo()).updateDeck(
+                                              deckId,
                                               cardFrontLanguage: value);
                                         }
                                       },
@@ -396,8 +423,9 @@ class DeckSettings extends StatelessWidget {
                                     DropdownButton(
                                       items: items,
                                       value: deck.cardBackLanguage,
-                                      onChanged: (value) {
-                                        repo.updateDeck(deckId,
+                                      onChanged: (value) async {
+                                        await (await deckRepo()).updateDeck(
+                                            deckId,
                                             cardBackLanguage: value);
                                       },
                                     ),
@@ -420,10 +448,11 @@ class AddCards extends StatefulWidget {
   }) : super(key: key);
 
   final Deck deck;
-  final CardRepository repo;
+  final Future<CardRepository> repo;
 
-  insertCard({String front, String back, String notes}) {
-    repo.insertCard(deck.id, front: front, back: back, notes: notes);
+  insertCard({String front, String back, String notes}) async {
+    await (await repo)
+        .insertCard(deck.id, front: front, back: back, notes: notes);
   }
 
   @override
@@ -488,14 +517,15 @@ class EditCard extends StatefulWidget {
 
   final Deck deck;
   final Card card;
-  final CardRepository repo;
+  final Future<CardRepository> repo;
 
-  deleteCard() {
-    repo.deleteCard(card.id);
+  deleteCard() async {
+    await (await repo).deleteCard(card.id);
   }
 
-  updateCard({String front, String back, String notes}) {
-    repo.updateCardContents(card.id, front: front, back: back, notes: notes);
+  updateCard({String front, String back, String notes}) async {
+    await (await repo)
+        .updateCardContents(card.id, front: front, back: back, notes: notes);
   }
 
   @override
@@ -647,6 +677,7 @@ class DeckShuffler {
       var shuffledNewCards = List.of<Card>(
           newCards.map((card) => card.copy(reviewed: DateTime.now())));
       shuffledNewCards.shuffle();
+      shuffled.addAll(newCards);
       shuffled.addAll(shuffledNewCards);
     }
     return shuffled;
@@ -668,19 +699,15 @@ class DeckShuffler {
 class StudyDeck extends StatelessWidget {
   final DeckShuffler shuffler;
   final Deck deck;
-  final DeckRepository repo;
-  final CardRepository cardRepo;
+  final Future<CardRepository> cardRepo;
 
-  StudyDeck(
-      {@required this.deck,
-      @required this.repo,
-      this.shuffler = const DeckShuffler()})
-      : cardRepo = repo.cards(deck.id);
+  StudyDeck({@required this.deck, this.shuffler = const DeckShuffler()})
+      : cardRepo = deckRepo().then((repo) => repo.cards(deck.id));
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: cardRepo.cards,
+      stream: flatMapStream(cardRepo, (repo) => repo.cards),
       builder: (context, snapshot) {
         var appBar = AppBar(title: Text(deck.title));
         if (snapshot.hasData) {
@@ -709,7 +736,7 @@ class StudyDeckContent extends StatefulWidget {
   final Deck deck;
   final List<Card> cards;
   final DeckShuffler shuffler;
-  final CardRepository repo;
+  final Future<CardRepository> repo;
 
   const StudyDeckContent(
       {Key key,
@@ -853,10 +880,10 @@ class _StudyDeckContentState extends State<StudyDeckContent>
     }
   }
 
-  next(BuildContext context, {bool correct}) {
+  next(BuildContext context, {bool correct}) async {
     if (correct != null) {
       var updatedCard = correct ? card.upgrade() : card.reset();
-      widget.repo.updateCardStats(card.id,
+      await (await widget.repo).updateCardStats(card.id,
           reviewed: DateTime.now(),
           difficulty: updatedCard.difficulty,
           interval: updatedCard.interval);
