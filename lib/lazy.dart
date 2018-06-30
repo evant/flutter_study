@@ -8,7 +8,7 @@ class Lazy<T> {
     if (value != null) {
       return value;
     } else {
-      value = f();
+      value = f() as T;
       assert(value != null);
       return value;
     }

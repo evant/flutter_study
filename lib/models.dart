@@ -3,7 +3,12 @@ import 'package:meta/meta.dart';
 typedef bool Predicate<E>(E element);
 
 class Deck {
-  Deck({this.id, @required this.title, this.reviewCount = 0, this.cardFrontLanguage, this.cardBackLanguage});
+  Deck(
+      {this.id,
+      @required this.title,
+      this.reviewCount = 0,
+      this.cardFrontLanguage,
+      this.cardBackLanguage});
 
   final int id;
   final String title;
@@ -15,15 +20,15 @@ class Deck {
 }
 
 class Card {
-  Card({
-    this.id,
-    @required this.front,
-    @required this.back,
-    this.notes,
-    this.reviewed,
-    this.interval = Duration.zero,
-    this.difficulty = 0,
-  });
+  Card(
+      {this.id,
+      @required this.front,
+      @required this.back,
+      this.notes,
+      this.reviewed,
+      this.interval = Duration.zero,
+      this.difficulty = 0,
+      this.alternatives = const <String>[]});
 
   final int id;
   final String front;
@@ -32,6 +37,7 @@ class Card {
   final DateTime reviewed;
   final Duration interval;
   final int difficulty;
+  final List<String> alternatives;
 
   bool get hasNotes => notes != null && notes.isNotEmpty;
 
@@ -45,6 +51,7 @@ class Card {
         reviewed: reviewed ?? this.reviewed,
         interval: interval ?? this.interval,
         difficulty: difficulty ?? this.difficulty,
+        alternatives: this.alternatives
       );
 
   Card upgrade() {
