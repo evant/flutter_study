@@ -310,13 +310,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.8.9"
-  sqlflight:
-    dependency: "direct main"
-    description:
-      path: "../sqlflight"
-      relative: true
-    source: path
-    version: "0.0.1"
   stack_trace:
     dependency: transitive
     description:
@@ -331,6 +324,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.6"
+  streamqflite:
+    dependency: "direct main"
+    description:
+      name: streamqflite
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   string_scanner:
     dependency: transitive
     description:

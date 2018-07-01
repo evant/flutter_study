@@ -7,8 +7,7 @@ dependencies:
 
   path_provider: ^0.4.1
   sqflite: ^0.8.9
-  sqlflight:
-    path: ../sqlflight
+  streamqflite: ^0.1.0
   flutter_tts: ^0.0.6
   rxdart: ^0.17.0
 

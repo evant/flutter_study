@@ -8,9 +8,9 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqlflight/sqlflight.dart';
+import 'package:streamqflite/streamqflite.dart';
 
-Lazy<Future<FlightDatabase>> defaultDb = Lazy(() => open());
+Lazy<Future<StreamDatabase>> defaultDb = Lazy(() => open());
 Lazy<Future<DeckRepository>> deckRepo =
     Lazy(() => defaultDb().then((db) => DeckRepository(db)));
 
@@ -19,9 +19,9 @@ Stream<S> flatMapStream<T, S>(Future<T> future, Stream<S> mapper(T t)) =>
 
 const String NOT_GIVEN = "<NOT_GIVEN>";
 
-Future<FlightDatabase> open() async {
+Future<StreamDatabase> open() async {
   var dir = await getApplicationDocumentsDirectory();
-  return FlightDatabase(await openDatabase(join(dir.path, "decks.db"),
+  return StreamDatabase(await openDatabase(join(dir.path, "decks.db"),
       version: 4, onCreate: (db, version) async {
     if (version < 3) {
       await db.execute("CREATE TABLE Decks ("
@@ -86,9 +86,9 @@ Future<FlightDatabase> open() async {
 }
 
 class DeckRepository {
-  FlightDatabase _db;
+  StreamDatabase _db;
 
-  DeckRepository(FlightDatabase db) : _db = db;
+  DeckRepository(StreamDatabase db) : _db = db;
 
   Stream<List<Deck>> get decks => _db.createRawQuery(
         ["Decks", "Cards"],
@@ -161,11 +161,11 @@ class DeckRepository {
 }
 
 class CardRepository {
-  final FlightDatabase _db;
+  final StreamDatabase _db;
   final DeckRepository deckRepo;
   final int deckId;
 
-  CardRepository(FlightDatabase db,
+  CardRepository(StreamDatabase db,
       {@required this.deckId, @required this.deckRepo})
       : _db = db;
 

@@ -317,13 +317,6 @@
             </list>
           </value>
         </entry>
-        <entry key="sqlflight">
-          <value>
-            <list>
-              <option value="$PROJECT_DIR$/../sqlflight/lib" />
-            </list>
-          </value>
-        </entry>
         <entry key="stack_trace">
           <value>
             <list>
@@ -335,6 +328,13 @@
           <value>
             <list>
               <option value="$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/stream_channel-1.6.6/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="streamqflite">
+          <value>
+            <list>
+              <option value="$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/streamqflite-0.1.0/lib" />
             </list>
           </value>
         </entry>
@@ -411,7 +411,6 @@
       </option>
     </properties>
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/../sqlflight/lib" />
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/analyzer-0.31.2-alpha.2/lib" />
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/args-1.4.3/lib" />
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/async-2.0.7/lib" />
@@ -456,6 +455,7 @@
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.8.9/lib" />
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/stack_trace-1.9.2/lib" />
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/stream_channel-1.6.6/lib" />
+      <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/streamqflite-0.1.0/lib" />
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/string_scanner-1.0.2/lib" />
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/synchronized-1.5.0+1/lib" />
       <root url="file://$USER_HOME$/flutter/.pub-cache/hosted/pub.dartlang.org/term_glyph-1.0.0/lib" />

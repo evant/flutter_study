@@ -1010,16 +1010,16 @@ class Question extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget child;
-//    if (card.difficulty == 0) {
-//      child = MultipleChoice(
-//          cards: cards,
-//          card: card,
-//          answer: answer as Answer<int>,
-//          answerChanged: answerChanged);
-//    } else {
+    if (card.difficulty == 0) {
+      child = MultipleChoice(
+          cards: cards,
+          card: card,
+          answer: answer as Answer<int>,
+          answerChanged: answerChanged);
+    } else {
       child = TextResponse(
           card: card, answer: answer, answerChanged: answerChanged);
-//    }
+    }
 
     return Column(
       children: <Widget>[
