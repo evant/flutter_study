@@ -127,7 +127,7 @@ class DeckRepository {
   }
 
   Future<Deck> insertDeck({@required String title}) async {
-    var id = await _db.insert("Decks", {"title": title});
+    var id = await _db.insert("Decks", <String, Object>{"title": title});
     return Deck(id: id, title: title);
   }
 
@@ -198,7 +198,7 @@ class CardRepository {
       @required String back,
       @required List<String> alternatives,
       @required String notes}) async {
-    var id = await _db.insert("Cards", {
+    var id = await _db.insert("Cards", <String, Object>{
       "deck": deckId,
       "front": front,
       "back": back,

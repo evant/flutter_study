@@ -4,6 +4,8 @@
 .packages
 .pub/
 *.iml
+.idea/
+.gradle/
 
 build/
 

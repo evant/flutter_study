@@ -725,7 +725,7 @@ class DeckShuffler {
       // Include new cards twice: first just to review, then again shuffled.
       // Limit new cards to 10
       var newCards = cards.where((card) => card.reviewed == null).take(10);
-      var shuffledNewCards = List.of<Card>(
+      var shuffledNewCards = List.of(
           newCards.map((card) => card.copy(reviewed: DateTime.now())));
       shuffledNewCards.shuffle();
       shuffled.addAll(newCards);
@@ -735,12 +735,12 @@ class DeckShuffler {
   }
 
   List<Card> pickChoices(List<Card> cards, int correctCardId, {int count = 4}) {
-    var cardsWithoutCurrent = List.from<Card>(cards);
+    var cardsWithoutCurrent = List<Card>.from(cards);
     var correctIndex =
         cardsWithoutCurrent.indexWhere(Card.withId(correctCardId));
     var correct = cardsWithoutCurrent.removeAt(correctIndex);
     cardsWithoutCurrent.shuffle();
-    var choices = List.from<Card>(cardsWithoutCurrent.take(count - 1));
+    var choices = List<Card>.from(cardsWithoutCurrent.take(count - 1));
     choices.add(correct);
     choices.shuffle();
     return choices;
